@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# Licensed by Curtis McEnroe (programble@gmail.com) under ISC License
+
 import sys
 
 from optparse import OptionParser

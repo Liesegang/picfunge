@@ -5,6 +5,7 @@ Befunge-like esoteric language using picture to input source code.
 
 ## License
 
+Copyright (c) 2018, Yuki Yamashita <yyama0704@gmail.com>
 Copyright (c) 2010, Curtis McEnroe <programble@gmail.com>
 
 Permission to use, copy, modify, and/or distribute this software for any
