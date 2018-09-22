@@ -33,9 +33,15 @@ class Pointer:
     def __init__(self):
         self.x = 0
         self.y = 0
+        self.z = 0
+
+        self.px = 0
+        self.py = 0
+        self.pz = 0
+
         self.dx = 1
         self.dy = 0
-        self.stack = Stack()
+
         self.stringmode = False
     def move(self):
         self.x += self.dx
