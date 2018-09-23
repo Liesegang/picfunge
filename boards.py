@@ -164,7 +164,7 @@ class Befunge93Board:
             x = self.pop()
             self.push(self.get(x, y, z))
         elif c == ord('&'):
-            x = raw_input()
+            x = sys.stdin.read(1)
             try:
                 self.push(int(x))
             except ValueError:
