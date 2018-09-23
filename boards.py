@@ -11,16 +11,16 @@ from io import StringIO
 from funge import Pointer
 
 def visible(i):
-    if(0x20 <= ord(i) and ord(i) <= 0x7e):
-        return i
+    if(0x20 <= i and i <= 0x7e):
+        return chr(i)
     else:
-        return hex(ord(i)) + " "
+        return hex(i) + " "
 
 class Befunge93Board:
     """A Befunge-93 board"""
     def __init__(self, width, height, debug=False, debug_delay=-1):
         self.pointer = Pointer()
-        self._list = [[[' '] * width for i in range(height)] for j in range(3)]
+        self._list = [[[0] * width for i in range(height)] for j in range(3)]
 
         self.width = width
         self.height = height
@@ -32,7 +32,7 @@ class Befunge93Board:
     def get(self, x, y, z):
         # Return space if out of bounds
         if x >= self.width or y >= self.height or z >= 3 or x < 0 or y < 0 or z < 0:
-            return ' '
+            return 0
         return self._list[z][y][x]
     
     def put(self, x, y, z, value):
@@ -47,25 +47,25 @@ class Befunge93Board:
             sys.stdout = self.debugstream
         
         c = self.get(self.pointer.x, self.pointer.y, self.pointer.z)
-        if c == '"':
+        if c == ord('"'):
             self.pointer.stringmode = not self.pointer.stringmode
         elif self.pointer.stringmode:
-            self.push(ord(c))
-        elif c in "0123456789":
-            self.push(int(c))
-        elif c == '>':
+            self.push(c)
+        elif c in map(ord,"0123456789"):
+            self.push(c - ord('0'))
+        elif c == ord('>'):
             self.pointer.dx = 1
             self.pointer.dy = 0
-        elif c == '<':
+        elif c == ord('<'):
             self.pointer.dx = -1
             self.pointer.dy = 0
-        elif c == '^':
+        elif c == ord('^'):
             self.pointer.dx = 0
             self.pointer.dy = -1
-        elif c == 'v':
+        elif c == ord('v'):
             self.pointer.dx = 0
             self.pointer.dy = 1
-        elif c == '?':
+        elif c == ord('?'):
             dir = ['>', 'v', '<', '^'][random.randint(0, 3)]
             if dir == '>':
                 self.pointer.dx = 1
@@ -79,36 +79,36 @@ class Befunge93Board:
             elif dir == 'v':
                 self.pointer.dx = 0
                 self.pointer.dy = 1
-        elif c == '+':
+        elif c == ord('+'):
             self.push(self.pop() + self.pop())
-        elif c == '*':
+        elif c == ord('*'):
             self.push(self.pop() * self.pop())
-        elif c == '-':
+        elif c == ord('-'):
             a = self.pop()
             b = self.pop()
             self.push(b - a)
-        elif c == '/':
+        elif c == ord('/'):
             a = self.pop()
             b = self.pop()
             self.push(b / a)
-        elif c == '%':
+        elif c == ord('%'):
             a = self.pop()
             b = self.pop()
             self.push(b % a)
-        elif c == '!':
+        elif c == ord('!'):
             x = self.pop()
             if x == 0:
                 self.push(1)
             else:
                 self.push(0)
-        elif c == '`':
+        elif c == ord('`'):
             a = self.pop()
             b = self.pop()
             if b > a:
                 self.push(1)
             else:
                 self.push(0)
-        elif c == '_':
+        elif c == ord('_'):
             x = self.pop()
             if x == 0:
                 self.pointer.dx = 1
@@ -116,7 +116,7 @@ class Befunge93Board:
             else:
                 self.pointer.dx = -1
                 self.pointer.dy = 0
-        elif c == '|':
+        elif c == ord('|'):
             x = self.pop()
             if x == 0:
                 self.pointer.dx = 0
@@ -124,99 +124,87 @@ class Befunge93Board:
             else:
                 self.pointer.dx = 0
                 self.pointer.dy = -1
-        elif c == ':':
+        elif c == ord(':'):
             x = self.pop()
             self.push(x)
             self.push(x)
-        elif c == '\\':
+        elif c == ord('\\'):
             a = self.pop()
             b = self.pop()
             self.push(a)
             self.push(b)
-        elif c == '$':
+        elif c == ord('$'):
             self.pop()
-        elif c == '.':
+        elif c == ord('.'):
             x = self.pop()
             sys.stdout.write(str(x) + ' ')
-        elif c == ',':
+        elif c == ord(','):
             x = self.pop()
             sys.stdout.write(chr(x))
-        elif c == '#':
+        elif c == ord('#'):
             self.pointer.move()
-        elif c == 'p':
+        elif c == ord('p'):
             y = self.pop()
             x = self.pop()
             v = self.pop()
-            # Simulate unsigned 8-bit integer
-            # Also guarantees value is in ASCII range
-            while v > 255:
-                v = 255 - v
-            while v < 0:
-                v += 255
-            self.put(x, y, self.pointer.z, chr(v))
-        elif c == 'g':
+            self.put(x, y, self.pointer.z, v)
+        elif c == ord('g'):
             y = self.pop()
             x = self.pop()
-            self.push(ord(self.get(x, y, self.pointer.z)))
-        elif c == 'P':
+            self.push(self.get(x, y, self.pointer.z))
+        elif c == ord('P'):
             z = self.pop()
             y = self.pop()
             x = self.pop()
             v = self.pop()
-            # Simulate unsigned 8-bit integer
-            # Also guarantees value is in ASCII range
-            while v > 255:
-                v = 255 - v
-            while v < 0:
-                v += 255
-            self.put(x, y, z, chr(v))
-        elif c == 'G':
+            self.put(x, y, z, v)
+        elif c == ord('G'):
             z = self,pop()
             y = self.pop()
             x = self.pop()
-            self.push(ord(self.get(x, y, z)))
-        elif c == '&':
+            self.push(self.get(x, y, z))
+        elif c == ord('&'):
             x = raw_input()
             try:
                 self.push(int(x))
             except ValueError:
-                self.push(0)
-        elif c == '~':
+                self.push(-1)
+        elif c == ord('~'):
             x = sys.stdin.read(1)
             if x == '':
-                self.push(0)
+                self.push(-1)
             else:
                 self.push(ord(x))
-        elif c == 's':
+        elif c == ord('s'):
             y = self.pop()
             x = self.pop()
             self.pointer.px = x
             self.pointer.py = y
-        elif c == 'S':
+        elif c == ord('S'):
             z = self.pop()
             y = self.pop()
             x = self.pop()
             self.pointer.px = x
             self.pointer.py = y
             self.pointer.pz = z
-        elif c == '@':
+        elif c == ord('@'):
             self.pointer.dx = 0
             self.pointer.dy = 0
-        elif c == 'A':
+        elif c == ord('A'):
             self.pointer.z += 1
             self.pointer.z %= 3
-        elif c == 'V':
+        elif c == ord('V'):
             self.pointer.z -= 1
             self.pointer.z %= 3
-        elif c == 'M':
+        elif c == ord('M'):
             self.pointer.pz += 1
             self.pointer.pz %= 3
-        elif c == 'W':
+        elif c == ord('W'):
             self.pointer.pz -= 1
             self.pointer.pz %= 3
         
         # Advance pointer
-        if not c in "VA":
+        if not c in map(ord, "VA"):
             self.pointer.move()
         
         # Wrap-around
@@ -264,7 +252,7 @@ class Befunge93Board:
         return self.pointer.dx == 0 and self.pointer.dy == 0
 
     def push(self, value):
-        self.put(self.pointer.px, self.pointer.py, self.pointer.pz, chr(value))
+        self.put(self.pointer.px, self.pointer.py, self.pointer.pz, value)
         self.pointer.px += 1
         if(self.pointer.px == self.width):
             self.pointer.px = 0
@@ -277,7 +265,7 @@ class Befunge93Board:
             self.pointer.px = self.width - 1
             self.pointer.py -= 1
             self.pointer.py %= self.height
-        return ord(self.get(self.pointer.px, self.pointer.py, self.pointer.pz))
+        return self.get(self.pointer.px, self.pointer.py, self.pointer.pz)
 
         return ret
 

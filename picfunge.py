@@ -47,9 +47,9 @@ def main():
         for x in range(width):
             # getpixel((x,y))で左からx番目,上からy番目のピクセルの色を取得し、img_pixelsに追加する
             [r, g, b] = image.getpixel((x,y))[0:3]
-            board.put(x, y, 0, chr(r))
-            board.put(x, y, 1, chr(g))
-            board.put(x, y, 2, chr(b))
+            board.put(x, y, 0, r)
+            board.put(x, y, 1, g)
+            board.put(x, y, 2, b)
 
     
     image.close()
