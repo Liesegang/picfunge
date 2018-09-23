@@ -137,7 +137,7 @@ class Befunge93Board:
             self.pop()
         elif c == ord('.'):
             x = self.pop()
-            sys.stdout.write(str(x) + ' ')
+            sys.stdout.write(str(x))
         elif c == ord(','):
             x = self.pop()
             sys.stdout.write(chr(x))
